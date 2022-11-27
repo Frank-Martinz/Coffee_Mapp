@@ -1,13 +1,14 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QDialog
-from PyQt5 import uic
+from addEditCoffeeForm import Ui_Add_Dialog
+from mainAppForm import Ui_MainWindow
 import sqlite3
 
 
-class Coffee_Mapp(QMainWindow):
+class Coffee_Mapp(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main.ui', self)
+        self.setupUi(self)
         self.add_funcs_to_buttons()
         self.fill_table()
 
@@ -39,7 +40,7 @@ class Coffee_Mapp(QMainWindow):
     def find_coffee_in_bd(self):
         name = self.name_edit.text()
 
-        con = sqlite3.connect('coffee.sqlite')
+        con = sqlite3.connect('data/coffee.sqlite')
         cur = con.cursor()
 
         result = cur.execute(f'''SELECT * FROM Info WHERE title LIKE '{name.capitalize()}%' ''').fetchall()
@@ -70,10 +71,10 @@ class Coffee_Mapp(QMainWindow):
                 self.tableWidget.setItem(en, e, QTableWidgetItem(str(item)))
 
 
-class AddEditCoffeeDialog(QDialog):
+class AddEditCoffeeDialog(Ui_Add_Dialog, QDialog):
     def __init__(self, edit_or_add, choosen_rows):
         super().__init__()
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
         self.edit_or_add = edit_or_add
         self.choosen_rows = choosen_rows
         self.add_func_to_btn()
@@ -83,7 +84,7 @@ class AddEditCoffeeDialog(QDialog):
             self.commit_btn.clicked.connect(self.add_coffee_to_bd)
         else:
             self.commit_btn.clicked.connect(self.edit_coffee_in_bd)
-            con = sqlite3.connect('coffee.sqlite')
+            con = sqlite3.connect('data/coffee.sqlite')
             cur = con.cursor()
 
             result = cur.execute(f'''SELECT * FROM Info WHERE id = {int(self.choosen_rows[0])}''').fetchone()
@@ -115,7 +116,7 @@ class AddEditCoffeeDialog(QDialog):
             self.error_lbl.setText('Введены некорректные данные')
             return False
 
-        con = sqlite3.connect('coffee.sqlite')
+        con = sqlite3.connect('data/coffee.sqlite')
         cur = con.cursor()
 
         cur.execute(f'''INSERT INTO Info(title, degree_of_roasting, 
@@ -136,7 +137,7 @@ class AddEditCoffeeDialog(QDialog):
         cost = self.cost_edit.text()
         packing_volume = self.packing_volume_edit.text()
 
-        con = sqlite3.connect('coffee.sqlite')
+        con = sqlite3.connect('data/coffee.sqlite')
         cur = con.cursor()
 
         cur.execute(f'''UPDATE info 
